@@ -1,0 +1,33 @@
+ciao LightSwitchInteraction
+    class Person
+        events
+            pressSwitch
+        effects
+            sendTurnOn
+            sendTurnOff
+        conditions
+            isLightOff
+        variables
+            lightState : Boolean
+        states
+            begin -> pressSwitch [isLightOff] / sendTurnOn -> begin
+                [else] / sendTurnOff -> end
+    class Light
+        events
+            turnOn
+            turnOff
+        states
+            Off -> turnOn -> On
+            On -> turnOff -> Off
+    scheme
+        objects
+            human = new Person (begin)
+            bulb = new Light (Off)
+        links
+            bulb <- human.sendTurnOn
+            bulb <- human.sendTurnOff
+            human <- bulb.switchOn
+            human <- bulb.switchOff
+        public
+            human.pressSwitch
+.
