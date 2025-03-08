@@ -1,5 +1,5 @@
-digraph DECISION {
-    start [label=DECISION shape=plaintext]
+digraph CHOICE {
+    start [label=CHOICE shape=plaintext]
     A [label="[" shape=oval]
     B [label=CALL shape=box]
     C [label=EXPRESSION shape=box]

@@ -18,7 +18,8 @@ def __RenderAst(diagramName, ast, debugInfoDir):
         node = nodes[0]
         if TreeNode.Type.NONTERMINAL == node[0].type:
             h.node(str(i),
-                   f"NONTERMINAL\ntype: {node[0].nonterminalType}" + (f"\nattribute: {node[0].attribute}" if node[0].attribute else ""),
+                   f"{node[0].nonterminalType}",
+                   # + (f"\nattribute: {node[0].attribute}" if node[0].attribute else ""),
                    shape='box')
             if node[1] != 0:
                 h.edge(str(node[1]), str(i))
@@ -27,31 +28,17 @@ def __RenderAst(diagramName, ast, debugInfoDir):
             token = node[0].token
             if Token.Type.TERMINAL == token.type:
                 h.node(str(i),
-                       f"TERMINAL\ntype: {token.terminalType.name}\nstring: {token.str}" + (f"\nattribute: {token.attribute}" if token.attribute else ""),
+                       f"{token.str}",
+                       # +(f"\nattribute: {token.attribute}" if token.attribute else ""),
                        shape='diamond')
             elif Token.Type.KEY == token.type:
-                h.node(str(i), f"KEY\nstring: {token.str}" + (f"\nattribute: {token.attribute}" if token.attribute else ""), shape='oval')
+                h.node(str(i), f"{token.str}",
+                       # +(f"\nattribute: {token.attribute}" if token.attribute else ""),
+                       shape='oval')
             h.edge(str(node[1]), str(i))
         nodes = nodes[1:]
         i += 1
     h.render(directory=debugInfoDir, view=True)
-
-
-def __GetRCode(node):
-    key = "$ATTRIBUTE$"
-    if TreeNode.Type.NONTERMINAL != node.type:
-        return ""
-    res = node.commands[0]
-    if -1 != res.find(key):
-        raise RuntimeError("Attribute must not be used in first edge")
-    for i in range(len(node.childs)):
-        childCode = __GetRCode(node.childs[i])
-        if len(childCode) != 0:
-            res = res + ("\n" if len(res) != 0 else "") + childCode
-        if len(node.commands[i + 1]) != 0:
-            res = res + ("\n" if len(res) != 0 else "") + node.commands[i + 1].replace(key, repr(node.childs[i].attribute))
-    return res
-
 
 
 def GetAST(jsonFile, codeFile, is_render):
@@ -68,9 +55,8 @@ def GetAST(jsonFile, codeFile, is_render):
         code = codeFile.read()
 
     tokenList = Tokenize(code, dsl_info)
-    # __RenderTokenStream('token_stream_after_scanner', tokenList, debugInfoDir)
     tokenList = Afterscan(tokenList, dsl_info)
-    # __RenderTokenStream('token_stream_after_afterscan', tokenList, debugInfoDir)
+
     ast = BuildAst(syntaxInfo, dsl_info.axiom, tokenList)
     if (is_render):
         __RenderAst('ast', ast, debugInfoDir)

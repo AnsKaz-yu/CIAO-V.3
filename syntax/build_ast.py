@@ -7,7 +7,6 @@ class TreeNode:
         TOKEN = 0
         NONTERMINAL = 1
 
-
     def __init__(self, type):
         self.type = type
         self.attribute = None
@@ -44,7 +43,8 @@ def __BuildAstElement(grammarDescription, nonterminal, tokenList, start, end):
                 if len(findEnd) != 0:
                     exit = findEnd[0]
                 break
-            if NodeType.TERMINAL == next[0].type and Token.Type.TERMINAL == newToken.type and newToken.terminalType == next[0].terminal:
+            if NodeType.TERMINAL == next[0].type and Token.Type.TERMINAL == newToken.type and newToken.terminalType == \
+                    next[0].terminal:
                 element = TreeNode(TreeNode.Type.TOKEN)
                 element.attribute = newToken.attribute
                 element.token = newToken

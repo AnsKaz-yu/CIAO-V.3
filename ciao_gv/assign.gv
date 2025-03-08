@@ -1,5 +1,5 @@
-digraph ASSIGNMENT {
-    start [label=ASSIGNMENT shape=plaintext]
+digraph ASSIGN{
+    start [label=ASSIGN shape=plaintext]
     A [label=name shape=diamond]
     B [label=":=" shape=oval]
     C [label=EXPRESSION shape=box]

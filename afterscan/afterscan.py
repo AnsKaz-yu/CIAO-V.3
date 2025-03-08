@@ -41,14 +41,4 @@ def Afterscan(tokenList, dsl_info):
             continue
         if dsl_info.Terminal.name == token.terminalType:
             token.attribute = token.str
-        # elif dsl_info.Terminal.string == token.terminalType:
-        #     token.attribute = token.str[1:-1]
-        # elif dsl_info.Terminal.code == token.terminalType:
-        #     token.attribute = token.str[1:-1]
-        # elif dsl_info.Terminal.number == token.terminalType:
-        #     if '.' in token.str:
-        #         token.attribute = float(token.str)
-        #     else:
-        #         token.attribute = int(token.str)
-
     return tmp

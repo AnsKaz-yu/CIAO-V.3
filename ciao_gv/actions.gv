@@ -1,7 +1,7 @@
 digraph ACTIONS {
     start [label=ACTIONS shape=plaintext]
     A [label=CALL shape=box]
-    B [label=ASSIGNMENT shape=box]
+    B [label=ASSIGN shape=box]
     C [label=";" shape=oval]
     end [label="" shape=point]
     start -> A
