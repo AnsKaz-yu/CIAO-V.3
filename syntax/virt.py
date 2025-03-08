@@ -1,6 +1,6 @@
 import pathlib
 import pydot
-#import dsl_info
+import dsl_info_ciao as dsl_info
 from syntax.core import *
 import importlib
 
@@ -26,8 +26,6 @@ def __GetType(shape):
 # здесь работаем с файлами .гв и dsl_info
 # возвращаем "Nonterminal.<name>"
 def GetSyntaxDesription(diagramsDir, dsl_info_file):
-    dsl_info = importlib.import_module(dsl_info_file)
-    
     # print("ciao.json -> ciao_gv/ -> *.gv")
     files = pathlib.Path(diagramsDir).glob('**/*.gv')
     res = dict()
