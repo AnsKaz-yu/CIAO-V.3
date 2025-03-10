@@ -37,10 +37,14 @@ def GenerateCode(ast, output_file=None):
         str: Сгенерированный код или сообщение об ошибке
     """
     try:
+        print("\nЗапуск ретранслятора...")
         generated_code = __GetRCode(ast)
+        print("Восстановление кода...")
         code = format_text(generated_code)
-        with open("out.txt", 'w') as f:
+        with open(output_file, 'w') as f:
             f.write(code)
+        print(f"Путь до файла с восстановленным кодом: {output_file}")
+        print("Результат работы ретранслятора:\n")
         return code
 
     except RuntimeError as e:
@@ -101,16 +105,25 @@ def format_text(words):
             i += 1
             list_key = ["->", "<-", "=", ":=", ":", ";", ",", ".", "new", "else", "(", ")", "[", "]", "/"]
             list_non_space = [".", ")", "[", "]"]
+            is_last = False
             while i < n and (words[i] in list_key or
                              words[i - 1] in list_key):
+                if i == n - 1:
+                    is_last = True
+                    break
+
                 line += ("" if words[i] in list_non_space or
-                               words[i - 1] in (list_non_space + ["("]) else " ")\
+                               words[i - 1] in (list_non_space + ["("]) else " ") \
                         + words[i]
                 if words[i] == ")":
                     i += 1
                     break
                 i += 1
+
             formatted_text.append(line)
+            if is_last:
+                formatted_text.append(words[-1])
+                break
 
     return "\n".join(formatted_text)
 

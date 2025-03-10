@@ -1,6 +1,7 @@
 from scanner import Tokenize
 from afterscan import Afterscan
 from dsl_token import *
+import dsl_info_ciao as dsl_info
 from syntax import *
 import graphviz
 import json
@@ -8,7 +9,7 @@ import pathlib
 import os
 
 
-def __RenderAst(diagramName, ast, debugInfoDir):
+def __RenderAst(diagramName, ast, debugInfoDir, view):
     if debugInfoDir is None:
         return
     h = graphviz.Digraph(diagramName, format='svg')
@@ -38,13 +39,21 @@ def __RenderAst(diagramName, ast, debugInfoDir):
             h.edge(str(node[1]), str(i))
         nodes = nodes[1:]
         i += 1
-    h.render(directory=debugInfoDir, view=True)
+
+    # Рендерим граф в файл
+    output_path = h.render(directory=debugInfoDir, view=False)  # Не открываем файл сразу
+    print("AST построено")
+    print("Путь до файла с AST: ", output_path)
+    # Открываем файл, если параметр view=True
+    if view:
+        import webbrowser
+        webbrowser.open(output_path)
 
 
 def GetAST(jsonFile, codeFile, is_render):
     with open(jsonFile, 'r') as jsonFile:
         jsonData = json.loads(jsonFile.read())
-    syntaxInfo, dsl_info = GetSyntaxDesription(jsonData["syntax"])
+    syntaxInfo = GetSyntaxDesription(jsonData["syntax"])
     if "debugInfoDir" in jsonData:
         debugInfoDir = pathlib.Path(jsonData["debugInfoDir"])
         if not debugInfoDir.exists():
@@ -54,10 +63,10 @@ def GetAST(jsonFile, codeFile, is_render):
     with open(codeFile, 'r') as codeFile:
         code = codeFile.read()
 
-    tokenList = Tokenize(code, dsl_info)
-    tokenList = Afterscan(tokenList, dsl_info)
+    print("Строим AST...")
+    tokenList = Tokenize(code)
+    tokenList = Afterscan(tokenList)
 
     ast = BuildAst(syntaxInfo, dsl_info.axiom, tokenList)
-    if (is_render):
-        __RenderAst('ast', ast, debugInfoDir)
+    __RenderAst('ast', ast, debugInfoDir, is_render)
     return ast

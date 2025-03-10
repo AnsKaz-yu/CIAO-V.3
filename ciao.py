@@ -11,7 +11,8 @@ if __name__ == "__main__":
     else:
         ciao_programm_file = sys.argv[1]
         ciao_json_file = 'ciao.json'
-        ast = GetAST(ciao_json_file, ciao_programm_file, True)
-        print(GenerateCode(ast, "test.txt"))
-        print(ast)
+        print("Начало работы программы...\n")
+        ast = GetAST(ciao_json_file, ciao_programm_file, False)
+
+        print(GenerateCode(ast, "_debug\\out.ciao"))
 
