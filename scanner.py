@@ -1,4 +1,5 @@
 #import dsl_info
+import dsl_info_ciao as dsl_info
 from dsl_token import Token
 import sys
 import re
@@ -11,12 +12,11 @@ def __SkipSpaces(code, pos):
     return len(code)
 
 
-def __GetCurrentToken(code, pos, dsl_info):
+def __GetCurrentToken(code, pos):
     for terminal, regex in dsl_info.tokenRegularExpressions:
         result = re.match(regex, code[pos:])
         if not result:
             continue
-        print(result)
         token = Token(Token.Type.TERMINAL)
         token.terminalType = terminal
         token.str = result.group(0)
@@ -24,13 +24,13 @@ def __GetCurrentToken(code, pos, dsl_info):
     raise SyntaxError(f"Failed to recognize token in pos {pos}")
 
 
-def Tokenize(code, dsl_info):
+def Tokenize(code):
     size = len(code)
     pos = 0
     tokens = []
     pos = __SkipSpaces(code, pos)
     while pos < size:
-        token, pos = __GetCurrentToken(code, pos, dsl_info)
+        token, pos = __GetCurrentToken(code, pos)
         tokens.append(token)
         pos = __SkipSpaces(code, pos)
     return tokens

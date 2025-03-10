@@ -1,5 +1,5 @@
-#import dsl_info
 from dsl_token import *
+import dsl_info_ciao as dsl_info
 
 
 def __ReplaceOneToken(tokenList, converter):
@@ -20,7 +20,7 @@ def __ReplaceKeywords(terminalMap, token):
     return [token]
 
 
-def Afterscan(tokenList, dsl_info):
+def Afterscan(tokenList):
     terminalMap = dict()
     for keyInfo in dsl_info.keys:
         if keyInfo[1] not in terminalMap:
