@@ -77,5 +77,5 @@ def GetSyntaxDesription(diagramsDir, dsl_info_file):
                 node.nextNodes.append((virtNodes[edge[0]], code.replace('\\"', '"')))
 
         res[dsl_info.Nonterminal[diagram.get_name()]] = startArray[0]
-    print(res)
+    # print(res)
     return res

@@ -10,7 +10,7 @@ ciao LightSwitchInteraction
         variables
             lightState : Boolean
         states
-            begin -> pressSwitch [isLightOff] / sendTurnOn -> begin
+            Idle -> pressSwitch [isLightOff] / sendTurnOn -> Idle
                 [else] / sendTurnOff -> end
     class Light
         events
@@ -21,13 +21,11 @@ ciao LightSwitchInteraction
             On -> turnOff -> Off
     scheme
         objects
-            human = new Person (begin)
+            human = new Person (Idle)
             bulb = new Light (Off)
         links
-            bulb <- human.sendTurnOn
-            bulb <- human.sendTurnOff
-            human <- bulb.switchOn
-            human <- bulb.switchOff
+            human.sendTurnOn <- bulb.turnOn
+            human.sendTurnOff <- bulb.turnOff
         public
             human.pressSwitch
 .
