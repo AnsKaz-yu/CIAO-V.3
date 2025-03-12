@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class Terminal(Enum):
     number = "number"
     name = "name"

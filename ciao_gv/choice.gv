@@ -21,6 +21,7 @@ digraph CHOICE {
     A -> C
     B -> D
     C -> D
+    D -> G
     D -> E
     E -> F
     F -> G

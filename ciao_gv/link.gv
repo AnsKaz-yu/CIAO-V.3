@@ -5,9 +5,14 @@ digraph LINK {
     C [label=name shape=diamond]
     D [label="." shape=oval]
     E [label=INTERFACE shape=box]
+    F [label="." shape=oval]
+    G [label=INTERFACE shape=box]
     end [label="" shape=point]
     start -> A
     A -> B
+    A -> F
+    F -> G
+    G -> B
     B -> C
     C -> D
     D -> E

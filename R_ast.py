@@ -1,11 +1,5 @@
-from scanner import Tokenize
-from afterscan import Afterscan
-from dsl_token import *
 from syntax import *
-import graphviz
-import json
-import pathlib
-import os
+import dsl_info_ciao as dsl_info
 
 
 def __GetRCode(node):
@@ -63,6 +57,10 @@ def format_text(words):
     i = 0
     n = len(words)
 
+    list_key = [info[0] for info in dsl_info.keys if info[1] == dsl_info.Terminal.char_key]
+    list_key.extend(["new", "else"])
+    third_level = [info[0] for info in dsl_info.keys if info[1] == dsl_info.Terminal.name]
+
     while i < n:
         word = words[i]
 
@@ -85,15 +83,8 @@ def format_text(words):
             i += 1
             indent_level = 2
 
-        # Третий уровень: ключевые слова после "class"
-        elif word in ["events", "effects", "conditions", "assertions", "variables", "states"]:
-            indent_level = 2
-            formatted_text.append("  " * indent_level + word)
-            i += 1
-            indent_level = 3
-
-        # Третий уровень: ключевые слова после "scheme"
-        elif word in ["objects", "links", "private", "public"]:
+        # Третий уровень: ключевые слова после "class" и "scheme"
+        elif word in third_level:
             indent_level = 2
             formatted_text.append("  " * indent_level + word)
             i += 1
@@ -103,7 +94,7 @@ def format_text(words):
         else:
             line = "  " * indent_level + word
             i += 1
-            list_key = ["->", "<-", "=", ":=", ":", ";", ",", ".", "new", "else", "(", ")", "[", "]", "/"]
+            # list_key = ["->", "<-", "=", ":=", ":", ";", ",", ".", "new", "else", "(", ")", "[", "]", "/"]
             list_non_space = [".", ")", "[", "]"]
             is_last = False
             while i < n and (words[i] in list_key or
@@ -115,7 +106,7 @@ def format_text(words):
                 line += ("" if words[i] in list_non_space or
                                words[i - 1] in (list_non_space + ["("]) else " ") \
                         + words[i]
-                if words[i] == ")":
+                if words[i] == ")" and not (words[i+1] in list_key):
                     i += 1
                     break
                 i += 1
