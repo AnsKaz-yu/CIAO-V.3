@@ -3,8 +3,6 @@ import dsl_info_ciao as dsl_info
 
 
 def __GetRCode(node):
-    key = "$ATTRIBUTE$"
-
     # Обработка терминалов
     if TreeNode.Type.NONTERMINAL != node.type:
         # Возвращаем токен как элемент списка

@@ -53,6 +53,21 @@ keys = [
     (".", Terminal.char_key),
 ]
 
+keywords = [
+            "class",
+            "scheme",
+            "events",
+            "effects",
+            "conditions",
+            "assertions",
+            "variables",
+            "states",
+            "objects",
+            "links",
+            "else",
+            "public",
+            "private",
+]
 
 class Nonterminal(Enum):
     CIAO_PROGRAM = "CIAO_PROGRAM"
