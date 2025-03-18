@@ -10,6 +10,8 @@ class TreeNode:
     def __init__(self, type):
         self.type = type
         self.attribute = None
+        self.nonterminalType = None
+        self.token = None
 
 
 def __BuildAstElement(grammarDescription, nonterminal, tokenList, start, end):

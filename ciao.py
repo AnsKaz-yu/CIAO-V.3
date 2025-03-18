@@ -3,6 +3,7 @@ from copy import deepcopy
 from build_ast import GetAST
 from R_ast import GenerateCode
 import sys
+from interpretator import InterpretCode
 
 
 if __name__ == "__main__":
@@ -14,5 +15,8 @@ if __name__ == "__main__":
         print("Начало работы программы...\n")
         ast = GetAST(ciao_json_file, ciao_programm_file, False)
 
-        print(GenerateCode(ast, "_debug\\out.ciao"))
+        # print(GenerateCode(ast, "_debug\\out.ciao"))
+
+        InterpretCode(ast)
+
 
