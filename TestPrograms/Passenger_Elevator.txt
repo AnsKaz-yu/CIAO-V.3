@@ -18,6 +18,7 @@ ciao Sample3
 				[else] / empty -> end
 			WaitIn -> opened [inside] / goTo(y) -> WaitIn
 				[else] / empty -> end
+			Wait -> want(y) -> Wait
 	class Elevator
 		events
 			call(x : Integer)

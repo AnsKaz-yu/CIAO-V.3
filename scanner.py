@@ -3,6 +3,10 @@ import dsl_info_ciao as dsl_info
 from dsl_token import Token
 import sys
 import re
+from colorama import Fore, init, Style
+
+
+init(autoreset=True)
 
 
 def __SkipSpaces(code, pos):
@@ -21,7 +25,8 @@ def __GetCurrentToken(code, pos):
         token.terminalType = terminal
         token.str = result.group(0)
         return token, pos + len(token.str)
-    raise SyntaxError(f"Failed to recognize token in pos {pos}")
+    print(Fore.RED + f"Failed to recognize token in pos {pos}")
+    return None, None
 
 
 def Tokenize(code):
@@ -31,6 +36,8 @@ def Tokenize(code):
     pos = __SkipSpaces(code, pos)
     while pos < size:
         token, pos = __GetCurrentToken(code, pos)
+        if token is None and pos is None:
+            return None
         tokens.append(token)
         pos = __SkipSpaces(code, pos)
     return tokens

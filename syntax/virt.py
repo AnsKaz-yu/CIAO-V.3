@@ -18,7 +18,8 @@ def __GetType(shape):
         return NodeType.TERMINAL
     if "oval" == shape:
         return NodeType.KEY
-    raise Exception(f"Insopported shape - {shape}")
+    print(f"Unsupported shape - {shape}")
+    return None
 
 
 # dsl_info - название нетерминалов - ключей и значений
@@ -30,13 +31,13 @@ def GetSyntaxDesription(diagramsDir, dsl_info_file):
     files = pathlib.Path(diagramsDir).glob('**/*.gv')
     res = dict()
     for file in files:
-        
         #print(f"Process {file.name}")
         source = pydot.graph_from_dot_file(file)
         diagram = source[0]
         a = diagram.get_type()
-        if ("digraph" != diagram.get_type()):
-            raise Exception("Virt diagram must be digraph")
+        if "digraph" != diagram.get_type():
+            print("Virt diagram must be digraph")
+            return None
         
         nodes = diagram.get_nodes()
         edges = diagram.get_edges()
@@ -49,6 +50,8 @@ def GetSyntaxDesription(diagramsDir, dsl_info_file):
             
             str = "" if "label" not in attribs else attribs["label"]
             nodeType = __GetType("box" if "shape" not in attribs else attribs["shape"])
+            if nodeType is None:
+                return None
             if len(str) != 0 and str[0] == '"':
                 str = str[1:-1]
             node = Node(nodeType, str)
@@ -62,9 +65,11 @@ def GetSyntaxDesription(diagramsDir, dsl_info_file):
             elif NodeType.END == nodeType:
                 endArray.append(node)
         if len(startArray) != 1:
-            raise Exception(f"Incorrect number of starts")
+            print(f"Incorrect number of starts")
+            return None
         if len(endArray) != 1:
-            raise Exception(f"Incorrect number of ends")
+            print(f"Incorrect number of ends")
+            return None
         for nodeName, node in virtNodes.items():
             outgoingEdges = [(edge.obj_dict["points"][1],
                               "" if "label" not in edge.obj_dict["attributes"] else edge.obj_dict["attributes"]["label"])

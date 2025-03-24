@@ -87,4 +87,8 @@ def __BuildAstElement(grammarDescription, nonterminal, tokenList, start, end):
 
 
 def BuildAst(grammarDescription, axiom, tokenList):
-    return __BuildAstElement(grammarDescription, axiom, tokenList, 0, len(tokenList))[0]
+    try:
+        return __BuildAstElement(grammarDescription, axiom, tokenList, 0, len(tokenList))[0]
+    except Exception as e:
+        print(f"AST construction error: {str(e)}")
+        return None

@@ -11,7 +11,7 @@ ciao LightSwitchInteraction
             lightState : Boolean
         states
             Idle -> pressSwitch [isLightOff] / sendTurnOn -> Idle
-                [else] / sendTurnOff -> end
+                [else] / sendTurnOff -> Idle
     class Light
         events
             turnOn

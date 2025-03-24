@@ -27,7 +27,7 @@ def GetDirect(node):
         if not text_code:
             continue
         if len(text_code) == 1:
-            result["state_end"] = text_code[0]
+            result["end_state"] = text_code[0]
             continue
         split_lists = [list(group) for key, group in groupby(text_code, lambda x: x == ';') if not key]
         result["actions"] = [''.join(sublist).strip() for sublist in split_lists]
@@ -55,11 +55,12 @@ def GetChoice(node):
                 result["actions"] = None
             result_all.append(result)
             result = {}
-        if condition:
-            result["condition"] = text_code[0]
+        if text_code[0] in [key[0] for key in dsl_info.keys]:
             condition = False
             continue
-        if text_code[0] in [key[0] for key in dsl_info.keys]:
+        if condition:
+            result["condition"] = "".join(text_code)
+            condition = False
             continue
         result["end_state"] = text_code[0]
     result_all.append(result)
@@ -138,10 +139,12 @@ def create_link(list_words):
 
 def parse_links(list_words):
     i = list_words.index('<-')
-    dict_sourse = create_dict(list_words[:i])
-    dict_target = create_dict(list_words[i+1:])
-    dict_sourse.update(dict_target)
-    return [dict_sourse]
+    # dict_source = create_dict(list_words[:i])
+    # dict_target = create_dict(list_words[i+1:])
+    # dict_source.update(dict_target)
+    source = "".join(list_words[:i])
+    target = "".join(list_words[i + 1:])
+    return [{source: target}]
 
 
 def parse_public(child, str_command, curr_dict):
@@ -166,7 +169,7 @@ def parse_private(child, str_command, curr_dict):
     return ""
 
 
-def __GetTable(node, current_k=None):
+def GetTable(node, current_k=None):
     # Если узел терминальный
     if TreeNode.Type.NONTERMINAL != node.type:
         # Возвращаем токен как элемент списка, если это терминал
@@ -220,7 +223,7 @@ def __GetTable(node, current_k=None):
             current_dict.update(__GetState(child))
             continue
 
-        child_code = __GetTable(child, current_key)
+        child_code = GetTable(child, current_key)
         if child_code is None:  # Пропускаем пустые результаты
             continue
 
@@ -264,12 +267,10 @@ def __GetTable(node, current_k=None):
     return result
 
 
-
-
-def InterpretCode(ast):
+def TableForInter(ast):
     try:
         print("\nПостроение таблиц...")
-        table_code = __GetTable(ast)
+        table_code = GetTable(ast)
         import json
 
         print(json.dumps(table_code, indent=4))

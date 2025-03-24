@@ -12,7 +12,6 @@ digraph AUTO_CLASS {
     start -> A
     A -> B
     B -> C
-
     C -> D
     C -> E
     C -> F

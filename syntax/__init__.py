@@ -7,5 +7,7 @@ def GetSyntaxDesription(syntaxParameters):
     if SyntaxDescriptionType.VIRT_DIAGRAMS.value == syntaxParameters["type"]:
         return syntax.virt.GetSyntaxDesription(syntaxParameters["info"]["diagrams"], syntaxParameters["info"]["supportInfo"])
     if SyntaxDescriptionType.RBNF.value == syntaxParameters["type"]:
-        raise Exception("RBNF not supported yet")
-    raise Exception("Unsupported syntax description type")
+        print("RBNF not supported yet")
+        return None
+    print("Unsupported syntax description type")
+    return None

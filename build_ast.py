@@ -54,19 +54,30 @@ def GetAST(jsonFile, codeFile, is_render):
     with open(jsonFile, 'r') as jsonFile:
         jsonData = json.loads(jsonFile.read())
     syntaxInfo = GetSyntaxDesription(jsonData["syntax"])
+    if syntaxInfo is None:
+        return
     if "debugInfoDir" in jsonData:
         debugInfoDir = pathlib.Path(jsonData["debugInfoDir"])
         if not debugInfoDir.exists():
             os.mkdir(debugInfoDir)
     else:
         debugInfoDir = None
-    with open(codeFile, 'r') as codeFile:
-        code = codeFile.read()
+
+    try:
+        with open(codeFile, 'r') as file:
+            code = file.read()
+    except Exception as e:
+        print(f"Произошла ошибка: {e}")
+        return None
 
     print("Строим AST...")
     tokenList = Tokenize(code)
+    if tokenList is None:
+        return None
     tokenList = Afterscan(tokenList)
 
     ast = BuildAst(syntaxInfo, dsl_info.axiom, tokenList)
+    if ast is None:
+        return None
     __RenderAst('ast', ast, debugInfoDir, is_render)
     return ast
