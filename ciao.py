@@ -3,20 +3,33 @@ from copy import deepcopy
 from build_ast import GetAST
 from R_ast import GenerateCode
 import sys
-from interpretator import InterpretCode
+from interpretator.interpreter import InterpretCode
+
+
+def handle_command(command):
+    if command == "":
+        return True
+    if command == "exit":
+        print("Завершение программы.")
+        return False
+    elif command == "help":
+        print("Доступные команды:")
+        print("  help - показать список команд")
+        print("  exit - завершить программу")
+    else:
+        ast = GetAST(ciao_json_file, command, False)
+        # print(GenerateCode(ast, "_debug\\out.ciao")
+        if ast:
+            InterpretCode(ast)
+    return True
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: ciao <filename>")
-    else:
-        ciao_programm_file = sys.argv[1]
-        ciao_json_file = 'ciao.json'
-        print("Начало работы программы...\n")
-        ast = GetAST(ciao_json_file, ciao_programm_file, False)
-
-        # print(GenerateCode(ast, "_debug\\out.ciao"))
-
-        InterpretCode(ast)
-
-
+    ciao_json_file = 'ciao.json'
+    print("Начало работы программы...")
+    while True:
+        print("\nВведите путь к файлу с кодом или команду")
+        command = input("> ").strip()
+        command = command.replace(">", "")
+        if not handle_command(command):
+            break

@@ -1,18 +1,20 @@
 ciao TrafficLightProg
     class TrafficLight
         events
-            switch_1
-            switch_2
+            switch
         effects
             red_on
             green_on
+        variables
+            t1: Integer
+            t2: Integer
         states
-            Idle -> switch_1 / red_on -> Red
-            Red -> switch_2 / green_on -> Green
-            Green -> switch_1 / red_on -> Red
+            Idle -> switch / red_on -> Red
+            Red -> after (t1) / green_on -> Green
+            Green -> after (t2) / red_on -> Red
     scheme
         objects
             traffic_light = new TrafficLight (Idle)
-        links
-            traffic_light.switch_1 <- traffic_light.switch_2
+        public
+            traffic_light.switch
 .

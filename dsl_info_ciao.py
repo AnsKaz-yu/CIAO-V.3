@@ -98,3 +98,6 @@ class Nonterminal(Enum):
     
 
 axiom = Nonterminal.CIAO_PROGRAM
+
+
+reserved_func = {"after": ["Integer"]}

@@ -8,6 +8,7 @@ digraph AUTO_SCHEME {
     start -> A
     A -> B
     B -> C
+    B->D
     C -> D
     D -> end
 }
