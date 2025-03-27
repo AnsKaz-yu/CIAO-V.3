@@ -29,7 +29,7 @@ ciao Elevator
             off
             on
         assertions
-            isOn
+            isOn <- name
         states
             Off -> on -> On
             Off -> off -> Off
