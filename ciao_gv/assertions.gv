@@ -1,7 +1,7 @@
 digraph ASSERTIONS {
     start [label=ASSERTIONS shape=plaintext]
     A [label="assertions" shape=oval]
-    B [label=INTERFACE shape=box]
+    B [label=ASSERT shape=box]
     end [label="" shape=point]
     start -> A
     A -> B

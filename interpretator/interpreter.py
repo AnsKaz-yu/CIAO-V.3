@@ -363,7 +363,8 @@ class Interpreter:
                     self.interpret(event_link, False)
                     break
 
-            print(f"{Style.BRIGHT + obj + Style.RESET_ALL} >> Действие: {Style.BRIGHT + act + Style.RESET_ALL} - выполнено")
+            print(f"{Style.BRIGHT + obj + Style.RESET_ALL} >> Действие: {Style.BRIGHT + act + Style.RESET_ALL} "
+                  f"- выполнено")
 
     def interpret(self, interface, isUser):
         parts = interface.split('.')

@@ -6,12 +6,12 @@ ciao LightSwitchInteraction
             sendTurnOn
             sendTurnOff
         conditions
-            isLightOff
+            isLightOn
         variables
             lightState : Boolean
         states
-            Idle -> pressSwitch [isLightOff] / sendTurnOn -> Idle
-                [else] / sendTurnOff -> Idle
+            Idle -> pressSwitch [isLightOn] / sendTurnOff -> Idle
+                [else] / sendTurnOn -> Idle
     class Light
         events
             turnOn
