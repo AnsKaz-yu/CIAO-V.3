@@ -1,4 +1,15 @@
 ciao Elevator
+    class Device
+        events
+            off
+            on
+        assertions
+            isOn <- state=On
+        states
+            Off -> on -> On
+            Off -> off -> Off
+            On -> on -> On
+            On -> off -> Off
     class Controller
         events
             in
@@ -18,23 +29,12 @@ ciao Elevator
             t1: Integer
             t2: Integer
         states
-            Idle -> in [occupied] -> Idle [else] / switch_on; open_door -> I2B
+            Idle -> in [occupied] -> Idle [else] / t1 := test; switch_on; open_door -> I2B
             I2B -> after (t1) / close_door; switch_off -> Idle
             I2B -> enter / close_door; occupy -> Busy
             Busy -> out / open_door -> B2I
             B2I -> after (t2) / close_door -> Busy
             B2I -> exit / close_door; switch_off; free -> Idle
-    class Device
-        events
-            off
-            on
-        assertions
-            isOn <- name
-        states
-            Off -> on -> On
-            Off -> off -> Off
-            On -> on -> On
-            On -> off -> Off
    scheme
         objects
             controller = new Controller (Idle)

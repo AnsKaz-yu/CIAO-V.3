@@ -223,8 +223,14 @@ class Interpreter:
         if actions is None:
             return True
         for act in actions:
+            if ":=" in act:
+                parts_assign = act.split(":=")
+                var = parts_assign[0]
+                if var not in self.variables[clas]:
+                    return False
+                continue
             if not self.checkVariable(act, clas):
-                print(Fore.RED + f"Ошибка в {clas} - {act}",end=" ")
+                print(Fore.RED + f"Ошибка в {clas} - {act}", end=" ")
                 return False
         return True
 
