@@ -30,14 +30,13 @@ class Interpreter:
         def __init__(self, classInfo, className, currentState):
             self.clas = className
             self.state = currentState
-            if "conditions" in list(classInfo.keys()):
+            if "conditions" in classInfo:
                 self.condition = {}
                 for cond in classInfo["conditions"]:
                     self.condition[cond] = False
-            if "variables" in list(classInfo.keys()):
-                self.variables = classInfo["variables"]
-                # тут по идее должна быть первичная инициализация какая-то...
-            if "assertions" in list(classInfo.keys()):
+            if "variables" in classInfo:
+                self.variables = dict.fromkeys(classInfo["variables"])
+            if "assertions" in classInfo:
                 self.assertion = classInfo["assertions"]
 
     def __init__(self, ast):
@@ -111,6 +110,7 @@ class Interpreter:
             return False
 
         link_func = link_split[1]
+
         index_ = None
         if "(" in link_func:
             index_ = link_func.index("(")
@@ -135,7 +135,7 @@ class Interpreter:
             if link_dict.items() <= self.condition[class_obj].items():
                 return True
         if class_obj in self.assertion:
-            if link_dict.items() <= self.assertion[class_obj].items():
+            if link_func in self.assertion[class_obj]:
                 return True
 
         print(Fore.RED + f"Ошибка в {link_func}", end=" ")
@@ -353,9 +353,52 @@ class Interpreter:
             state_table[clas] = stateMatrix
         return state_table
 
+    def interpretCondition(self, obj, condition):
+        link_conditions = f"{obj}.{condition}"
+        obj_assert = None
+        assertion = None
+        for link in self.links:
+            for key, value in link.items():
+                if link_conditions not in key:
+                    continue
+                event_link = value
+                parts = event_link.split('.')
+                print(f"{Style.BRIGHT + obj + Style.RESET_ALL} >> "
+                      f"Вычисление утверждения {Style.BRIGHT + parts[1] + Style.RESET_ALL} "
+                      f"у объекта {Style.BRIGHT + parts[0] + Style.RESET_ALL} \n")
+                obj_assert = parts[0]
+                assertion = parts[1]
+                break
+
+        assert_ = self.objects[obj_assert].assertion[assertion]
+        # нужно будет добавить проверку и других утверждений
+        if "state" in assert_:
+            parts = assert_.split("=")
+            as_state = parts[1]
+            if self.objects[obj_assert].state == as_state:
+                print(f"{Style.BRIGHT + obj_assert+ Style.RESET_ALL} >> "
+                      f"{Style.BRIGHT + assertion} = True {Style.RESET_ALL}"
+                      f"\n")
+                return True
+            else:
+                print(f"{Style.BRIGHT + obj_assert+ Style.RESET_ALL} >> "
+                      f"{Style.BRIGHT + assertion} = False {Style.RESET_ALL}"
+                      f"\n")
+                return False
+
     def interpretActions(self, obj, actions):
         for act in actions:
             print(f"{Style.BRIGHT + obj + Style.RESET_ALL} >> Выполнение действия: {Style.BRIGHT + act + Style.RESET_ALL}...")
+            if ":=" in act:
+                parts = act.split(":=")
+                var = parts[0]
+                value = parts[1]  # по идее может быть сложным выражением, но пока будет для простых
+                autoClass = self.objects[obj]
+                autoClass.variables[var] = value
+                print(f"{Style.BRIGHT + obj + Style.RESET_ALL} >> Действие: {Style.BRIGHT + act + Style.RESET_ALL} "
+                      f"- выполнено")
+                continue
+
             link_act = f"{obj}.{act}"
             for link in self.links:
                 for key, value in link.items():
@@ -398,6 +441,7 @@ class Interpreter:
             if not res:
                 print(Fore.RED + "Введена недопустимая команда. Повторите ещё раз")
                 return
+
         obj = parts[0]
         event = parts[1]
         print(f"{Style.BRIGHT + obj + Style.RESET_ALL} >> "
@@ -434,14 +478,16 @@ class Interpreter:
                 return
 
             print(f"{Style.BRIGHT + obj + Style.RESET_ALL} >> "
-                  f"Проверка условия: {Style.BRIGHT + cell.condition + Style.RESET_ALL} "
-                  f"= {autoClass.condition[cell.condition]}")
+                  f"Проверка условия: {Style.BRIGHT + cell.condition + Style.RESET_ALL} ")
+            autoClass.condition[cell.condition] = self.interpretCondition(obj, cell.condition)
+            print(f"{Style.BRIGHT + obj + Style.RESET_ALL} >> "
+                  f"{Style.BRIGHT + cell.condition} = {autoClass.condition[cell.condition]}")
             if autoClass.condition[cell.condition]:
-                autoClass.condition[cell.condition] = False
+                # autoClass.condition[cell.condition] = False
                 end_state = cell.end_state[0]
                 actions = cell.actions[0]
             else:
-                autoClass.condition[cell.condition] = True
+                # autoClass.condition[cell.condition] = True
                 end_state = cell.end_state[1]
                 actions = cell.actions[1]
 

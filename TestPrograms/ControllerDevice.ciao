@@ -29,7 +29,7 @@ ciao Elevator
             t1: Integer
             t2: Integer
         states
-            Idle -> in [occupied] -> Idle [else] / t1 := test; switch_on; open_door -> I2B
+            Idle -> in [occupied] -> Idle [else] / t1 := 5; t2 := 5; switch_on; open_door -> I2B
             I2B -> after (t1) / close_door; switch_off -> Idle
             I2B -> enter / close_door; occupy -> Busy
             Busy -> out / open_door -> B2I
