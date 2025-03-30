@@ -107,6 +107,14 @@ def parse_list(list_words):
     return dict_word
 
 
+def parse_assertions(list_words):
+    dict_word = {}
+    ind = list_words.index('<-')
+    elements_after_arrow = "".join(list_words[ind+1:])
+    dict_word[list_words[0]] = elements_after_arrow
+    return dict_word
+
+
 def parse_variable(list_words):
     dict_word = {list_words[0]: list_words[-1]}
     return dict_word
@@ -189,8 +197,12 @@ def GetTable(node, current_k=None):
 
     # Обрабатываем дочерние узлы
     for child in node.childs:
-        if current_key in ["events", "effects", "conditions", "assertions"]:
+        if current_key in ["events", "effects", "conditions"]:
             current_dict.update(parse_list(__GetNodeCode(child)))
+            continue
+
+        if current_key in ["assertions"]:
+            current_dict.update(parse_assertions(__GetNodeCode(child)))
             continue
 
         if current_key in ["variables"]:
