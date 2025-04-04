@@ -16,6 +16,8 @@ ciao LightSwitchInteraction
         events
             turnOn
             turnOff
+        assertions
+            isOn <- state=On
         states
             Off -> turnOn -> On
             On -> turnOff -> Off
@@ -26,6 +28,7 @@ ciao LightSwitchInteraction
         links
             human.sendTurnOn <- bulb.turnOn
             human.sendTurnOff <- bulb.turnOff
+            human.isLightOn <- bulb.isOn
         public
             human.pressSwitch
 .

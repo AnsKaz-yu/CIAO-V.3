@@ -2,10 +2,11 @@ from syntax import *
 import dsl_info_ciao as dsl_info
 import pprint
 from interpretator.createTable import GetTable, create_link
+from reservFunc.after import TimerManager
+
 from tabulate import tabulate
 import re
 from colorama import Fore, init, Style
-
 
 init(autoreset=True)
 
@@ -298,6 +299,8 @@ class Interpreter:
 
         if not types_var_ev:
             print(Fore.RED + "Не принимает аргументы")
+        elif not var_type:
+            print(Fore.RED + "Ни один требуемый аргумент не передан")
         else:
             print(Fore.RED + "Неправильные типы переданных переменных")
         return False
@@ -325,8 +328,7 @@ class Interpreter:
                 if ev_name in col_name:
                     ind = col_name.index(ev_name)
                 else:
-                    reservfunc = list(dsl_info.reserved_func.keys())
-                    if ev_name not in reservfunc:
+                    if ev_name not in dsl_info.reserved_func:
                         print(Fore.RED + "Недопустимое событие")
                         return None
                     for row in matrix:
@@ -376,19 +378,20 @@ class Interpreter:
             parts = assert_.split("=")
             as_state = parts[1]
             if self.objects[obj_assert].state == as_state:
-                print(f"{Style.BRIGHT + obj_assert+ Style.RESET_ALL} >> "
+                print(f"{Style.BRIGHT + obj_assert + Style.RESET_ALL} >> "
                       f"{Style.BRIGHT + assertion} = True {Style.RESET_ALL}"
                       f"\n")
                 return True
             else:
-                print(f"{Style.BRIGHT + obj_assert+ Style.RESET_ALL} >> "
+                print(f"{Style.BRIGHT + obj_assert + Style.RESET_ALL} >> "
                       f"{Style.BRIGHT + assertion} = False {Style.RESET_ALL}"
                       f"\n")
                 return False
 
     def interpretActions(self, obj, actions):
         for act in actions:
-            print(f"{Style.BRIGHT + obj + Style.RESET_ALL} >> Выполнение действия: {Style.BRIGHT + act + Style.RESET_ALL}...")
+            print(
+                f"{Style.BRIGHT + obj + Style.RESET_ALL} >> Выполнение действия: {Style.BRIGHT + act + Style.RESET_ALL}...")
             if ":=" in act:
                 parts = act.split(":=")
                 var = parts[0]
@@ -416,18 +419,24 @@ class Interpreter:
                   f"- выполнено")
 
     def interpret(self, interface, isUser):
+        if hasattr(self, 'timer') and self.timer.is_active():
+            obj_part = interface.split('.')[0]
+            if interface in self._current_stop_commands:
+                self.timer.cancel()
+                print(f"{obj_part} >> Таймер отменён событием: {interface}")
+                return
+
         parts = interface.split('.')
         if len(parts) != 2:
             print(Fore.RED + "Некорректно введено событие. Вид: объект.событие")
             return
 
         if isUser:
-            reservfunc = list(dsl_info.reserved_func.keys())
             ev = parts[1]
             if "(" in ev:
                 ind_b = ev.index("(")
                 ev = ev[:ind_b]
-            if ev in reservfunc:
+            if ev in dsl_info.reserved_func:
                 print(Fore.RED + "Введено зарезервированное состояние недоступное пользователю")
                 return
             res = True
@@ -441,6 +450,9 @@ class Interpreter:
             if not res:
                 print(Fore.RED + "Введена недопустимая команда. Повторите ещё раз")
                 return
+
+        # if hasattr(self, 'timer') and self.timer.is_active():
+        #     return
 
         obj = parts[0]
         event = parts[1]
@@ -473,7 +485,7 @@ class Interpreter:
                 print(Fore.RED + f"Класс не содержит условий. Проверьте код")
                 return
 
-            if cell.condition not in list(autoClass.condition.keys()):
+            if cell.condition not in autoClass.condition:
                 print(Fore.RED + f"Недопустимое условие")
                 return
 
@@ -505,6 +517,62 @@ class Interpreter:
         print(f"{Style.BRIGHT + obj + Style.RESET_ALL} >> Cобытиe: {Style.BRIGHT + event + Style.RESET_ALL} "
               f"- выполнено\n")
 
+        self.isAfter(end_state, state_table, obj)
+
+    def isAfter(self, state, stateTable, obj):
+        if "after" not in stateTable[0]:
+            return
+
+        after_ind = stateTable[0].index("after")
+        nameStates = [row[0] for row in stateTable[1:]]
+        state_ind = nameStates.index(state) + 1
+        cell = stateTable[state_ind][after_ind]
+        if cell is None:
+            return
+
+        # Получаем время для таймера
+        var_name = ""
+        className = self.objects[obj].clas
+        for triggerEv in self.table_code["classes"][className]['states'][state]:
+            trigger = list(triggerEv.keys())[0]
+            if 'after' not in trigger:
+                continue
+            start = trigger.find("(") + 1
+            end = trigger.find(")")
+            var_name = trigger[start:end] if start > 0 and end > start else None
+
+        var_value = self.objects[obj].variables[var_name]
+        if var_value is None:
+            print(Fore.RED + f"Переменная {var_name} в объекте {obj} не проинициализирована")
+            return
+
+        # Функция для выполнения по завершении таймера
+        def timer_complete():
+            print(f"\n{obj} >> Таймер after завершился!")
+            if cell.actions:
+                self.interpretActions(obj, cell.actions)
+            self.objects[obj].state = cell.end_state
+            print(f"{obj} >> Переход в состояние: {cell.end_state}\n")
+            # self.isAfter(cell.end_state, stateTable, obj)
+            print(">>> ", end='', flush=True)
+
+        # Запускаем таймер в отдельном потоке
+        self.timer = TimerManager()
+        self.timer.after(var_value, timer_complete)
+
+        # Сохраняем команды для остановки
+        self._current_stop_commands = [f"{obj}.{name_event}"
+                                       for ind, name_event in enumerate(stateTable[0])
+                                       if stateTable[state_ind][ind] is not None
+                                       and name_event != "after"
+                                       and name_event != ""]
+
+        print(f"\n{obj} >> Таймер {Style.BRIGHT} after({var_value}) {Style.RESET_ALL} запущен. Команды остановки:")
+        for cmd in self._current_stop_commands:
+            print(f"        {cmd}")
+
+        return
+
     def print_command(self, interface):
         for key, value in interface.items():
             if not value:
@@ -530,6 +598,20 @@ class Interpreter:
     def handle_command(self, command):
         if command == "":
             return True
+
+        # Проверка команд остановки таймера
+        if hasattr(self, '_current_stop_commands') and hasattr(self, 'timer') and self.timer.is_active():
+            if command in self._current_stop_commands:
+                self.timer.cancel()
+                print(f"Таймер отменён командой: {command}")
+                # Обрабатываем команду как обычное событие
+                self.interpret(command, True)
+                return True
+
+        if hasattr(self, 'timer') and self.timer.is_active():
+            return True
+
+        # Остальные команды...
         if command == "exitCode":
             print("Завершение текущей программы.")
             return False
@@ -537,6 +619,10 @@ class Interpreter:
             print("Доступные команды:")
             print(Fore.GREEN + "  exitCode - завершить текущую программу")
             print(Fore.GREEN + "  interfaces - получить список доступных интерфейсов")
+            if hasattr(self, '_current_stop_commands') and hasattr(self, 'timer') and self.timer.is_active():
+                print(Fore.GREEN + "  Команды для остановки таймера:")
+                for cmd in self._current_stop_commands:
+                    print(Fore.GREEN + f"  {cmd}")
             return True
         if command == "interfaces":
             print("Доступные интерфейсы:")
@@ -556,6 +642,9 @@ def InterpretCode(ast):
             return
 
         while True:
+            if hasattr(inter, 'timer') and not inter.timer.is_active() and inter.timer._completed:
+                inter.timer._completed = False
+
             command = input(">>> ").strip()
             command = command.replace(">>>", "")
             if not inter.handle_command(command):

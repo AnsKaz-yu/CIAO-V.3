@@ -22,15 +22,18 @@ def __GetNodeCode(node):
 
 def GetDirect(node):
     result = {"condition": None}
-    for child in node.childs:
+    size = len(node.childs)
+    for i, child in enumerate(node.childs):
         text_code = __GetNodeCode(child)
         if not text_code:
             continue
-        if len(text_code) == 1:
+        if i == size-1:
             result["end_state"] = text_code[0]
             continue
-        split_lists = [list(group) for key, group in groupby(text_code, lambda x: x == ';') if not key]
-        result["actions"] = [''.join(sublist).strip() for sublist in split_lists]
+        if child.nonterminalType == dsl_info.Nonterminal.ACTIONS:
+            split_lists = [list(group) for key, group in groupby(text_code, lambda x: x == ';') if not key]
+            actions = [''.join(sublist).strip() for sublist in split_lists if sublist]
+            result["actions"] = actions if actions else None
 
     if "actions" not in result:
         result["actions"] = None
